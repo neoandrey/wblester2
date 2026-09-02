@@ -30,7 +30,7 @@ jobs:
       shell: bash
   
 
-    - name: Prepare Environment Variables
+    - name: Prepare Deployment Files
       env:
         APP_NAME: ${{ vars.APP_NAME}}
         FLASK_ENV: ${{ vars.FLASK_ENV}}
@@ -68,5 +68,10 @@ jobs:
           #bash /tmp/purge_docker_images.sh
           mkdir -p /opt/$APP_NAME /opt/$APP_NAME/logs /opt/$APP_NAME/uploads 
           cd /opt/$APP_NAME
+          while IFS= read -r line || [[ -n "$line" ]]; do
+           echo $line
+           export "${line//$'\r'/}"
+           #echo "${line//$'\r'/}" >> $GITHUB_ENV
+          done < ".env"
           docker compose up -d --force-recreate
           #docker images --format table| awk 'NR>2 {print $1":"$2}'|xargs docker image rm -f &>/dev/null
