@@ -45,7 +45,7 @@ jobs:
         mv remote.env .env
         mv docker-compose.remote.yml docker-compose.yml
         echo "RELEASE_VERSION=${RELEASE_VERSION}" >> .env
-        sshpass -p ${{ secrets.APP_SERVER_PASSWORD}} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ${{ secrets.APP_SERVER_USERNAME}}@${{ secrets.APP_SERVER_IP}}:* /opt/$APP_NAME/
+        sshpass -p ${{ secrets.APP_SERVER_PASSWORD}} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r . ${{ secrets.APP_SERVER_USERNAME}}@${{ secrets.APP_SERVER_IP}}:/opt/$APP_NAME
         
     - name: Deploy app to Worker
       uses: appleboy/ssh-action@master
