@@ -186,7 +186,7 @@ def _init_mongo(app: Flask) -> None:
         kwargs["authentication_source"] = os.environ.get(
             "MONGODB_AUTH_SOURCE", "admin"
         )
-    mongo_url =  app.config.get("MONGODB_URL") or os.environ.get("MONGODB_URL")
+    mongo_url =  app.config.get("MONGO_URL") or os.environ.get("MONGO_URL")
     if mongo_url:
         mongoengine.connect(
         host=mongo_url,

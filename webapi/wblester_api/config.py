@@ -22,6 +22,7 @@ class Config:
     MONGODB_DB = os.environ.get("MONGODB_DB", "wblester")
     MONGODB_USERNAME = os.environ.get("MONGODB_USERNAME")
     MONGODB_PASSWORD = os.environ.get("MONGODB_PASSWORD")
+    MONGO_URL = os.environ.get("MONGO_URL")
 
     REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
     REDIS_PORT = _int_env("REDIS_PORT", 6379)

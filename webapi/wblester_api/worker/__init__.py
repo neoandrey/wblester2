@@ -17,6 +17,7 @@ import sys
 
 def get_redis():
     import redis
+    from redis import Redis
     from redis.retry import Retry
     from redis.exceptions import (
         TimeoutError as RedisTimeoutError,
