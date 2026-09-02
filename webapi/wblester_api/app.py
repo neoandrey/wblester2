@@ -186,6 +186,16 @@ def _init_mongo(app: Flask) -> None:
         kwargs["authentication_source"] = os.environ.get(
             "MONGODB_AUTH_SOURCE", "admin"
         )
+    mongo_url =  app.config.get("MONGODB_URL") or os.environ.get("MONGODB_URL")
+    if mongo_url:
+        mongoengine.connect(
+        host=mongo_url,
+        retryWrites=True,
+        maxIdleTimeMS=60000,
+        socketTimeoutMS=20000,
+        connectTimeoutMS=20000, 
+        **kwargs)
+        return
     mongoengine.connect(
         host=(
             app.config.get("MONGODB_HOST")

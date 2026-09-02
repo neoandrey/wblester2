@@ -73,5 +73,5 @@ jobs:
            export "${line//$'\r'/}"
            #echo "${line//$'\r'/}" >> $GITHUB_ENV
           done < "/opt/$APP_NAME/.env"
-          docker compose up -d --force-recreate
+          docker compose --env-file=.env up -d --force-recreate
           #docker images --format table| awk 'NR>2 {print $1":"$2}'|xargs docker image rm -f &>/dev/null

@@ -17,6 +17,12 @@ import sys
 
 def get_redis():
     import redis
+    from redis.retry import Retry
+    from redis.exceptions import (
+        TimeoutError as RedisTimeoutError,
+        ConnectionError as RedisConnectionError
+    )
+    from redis.backoff import ExponentialBackoff
 
     from flask import current_app
 
@@ -25,19 +31,53 @@ def get_redis():
     # RQ requires a byte-mode connection (do NOT set decode_responses=True),
     # otherwise its registries trip over str/bytes decoding.
     
-    rd=  redis.Redis(
-            host=current_app.config.get("REDIS_HOST", "localhost"),
-            port=int(current_app.config.get("REDIS_PORT", 6379)),
-            socket_connect_timeout=2,
-            socket_timeout=2,
-        ) if not current_app.config.get("REDIS_USERNAME") else redis.Redis(
-            host=current_app.config.get("REDIS_HOST", "localhost"),
-            port=int(current_app.config.get("REDIS_PORT", 6379)),
-            username=current_app.config.get("REDIS_USERNAME"),
-            password=current_app.config.get("REDIS_PASSWORD"),
-            socket_connect_timeout=2,
-            socket_timeout=2,
-        )
+    rd=  None
+    if current_app.config.get("REDIS_USERNAME") :
+        
+        try:
+                pool=redis.ConnectionPool(
+                host=current_app.config.get("REDIS_HOST", "localhost"),
+                port=int(current_app.config.get("REDIS_PORT", 6379)),
+                username=current_app.config.get("REDIS_USERNAME"),
+                password=current_app.config.get("REDIS_PASSWORD"),
+                    socket_connect_timeout=(2),
+                    socket_timeout=(2),
+                    single_connection_client=True,
+                    retry=Retry(ExponentialBackoff(cap=10, base=1), 25),
+                    retry_on_error=[
+                        RedisConnectionError,
+                        RedisTimeoutError,
+                        ConnectionResetError,
+                    ],
+                    health_check_interval=(30),
+                    socket_keepalive=False,
+                    retry_on_timeout=True,
+                )
+                rd = Redis(connection_pool=pool)
+        except ConnectionError:
+            print("Redis connection error: %s:%s" % (host, port), file=sys.stderr)
+    else:
+        try:
+            rd = redis.Redis(
+                host=current_app.config.get("REDIS_HOST", "localhost"),
+                port=int(current_app.config.get("REDIS_PORT", 6379)),
+                socket_connect_timeout=(2),
+                socket_timeout=(2),
+                single_connection_client=True,
+                retry=Retry(ExponentialBackoff(cap=10, base=1), 25),
+                retry_on_error=[
+                    RedisConnectionError,
+                    RedisTimeoutError,
+                    ConnectionResetError,
+                ],
+                health_check_interval=(30),
+                socket_keepalive=False,
+                retry_on_timeout=True,
+            )
+        except ConnectionError:
+            print("Redis connection error: %s:%s" % (host, port), file=sys.stderr)   
+             
+        
     return rd #redis.Redis(host=host, port=port)
 
 
