@@ -1709,12 +1709,21 @@ if __name__ == "__main__":
         kwargs["authentication_source"] = os.environ.get(
             "MONGODB_AUTH_SOURCE", "admin"
         )
-    mongoengine.connect(
-        host=os.environ.get("MONGODB_HOST", "mongo"),
-        port=int(os.environ.get("MONGODB_PORT", "27017")),
-        db=os.environ.get("MONGODB_DB", "wblester"),
-        **kwargs,
-    )
+    mongo_url =  os.environ.get("MONGO_URL")
+    if mongo_url:
+        mongoengine.connect(
+        host=mongo_url,
+        retryWrites=True,
+        maxIdleTimeMS=60000,
+        socketTimeoutMS=20000,
+        connectTimeoutMS=20000,)
+    else:
+        mongoengine.connect(
+            host=os.environ.get("MONGODB_HOST", "mongo"),
+            port=int(os.environ.get("MONGODB_PORT", "27017")),
+            db=os.environ.get("MONGODB_DB", "wblester"),
+            **kwargs,
+        )
     RUNTIME_CONFIG["UPLOAD_DIR"] = os.environ.get(
         "UPLOAD_DIR", Config.UPLOAD_DIR
     )

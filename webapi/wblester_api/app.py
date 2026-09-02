@@ -193,8 +193,7 @@ def _init_mongo(app: Flask) -> None:
         retryWrites=True,
         maxIdleTimeMS=60000,
         socketTimeoutMS=20000,
-        connectTimeoutMS=20000, 
-        **kwargs)
+        connectTimeoutMS=20000,)
         return
     mongoengine.connect(
         host=(
