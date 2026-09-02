@@ -69,4 +69,4 @@ jobs:
           mkdir -p /opt/$APP_NAME /opt/$APP_NAME/logs /opt/$APP_NAME/uploads 
           cd /opt/$APP_NAME
           docker-compose  up -d --force-recreate
-          docker images --format table| awk 'NR>2 {print $1":"$2}'|xargs docker image rm -f &>/dev/null
+          #docker images --format table| awk 'NR>2 {print $1":"$2}'|xargs docker image rm -f &>/dev/null
