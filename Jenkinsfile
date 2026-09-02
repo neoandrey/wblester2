@@ -6,7 +6,7 @@ pipeline {
 environment {
 
         PATH             = "C:\\WINDOWS\\SYSTEM32;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\Users\\neoan\\AppData\\Roaming\\npm;C:\\Progra~1\nodejs\\;C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Program Files\\Git\\bin;"
-        PROJECT_PATH     = "E:\\workspace\\P\\Python\\juice"
+        PROJECT_PATH     = "E:\\workspace\\F\\flutter\\wblester_ai"
    }
    options { 
        timestamps()
@@ -18,10 +18,10 @@ environment {
     }
     parameters{
 		
-		choice(name:"targetEnvironment", choices :  ["Test","Production"], description: "Build on local machine or push to remote repo")
+		choice(name:"targetEnvironment", choices :  ["Production","Test"], description: "Build on local machine or push to remote repo")
         string(name:"branchName", defaultValue :"prod", description :"Git branch name")
 		string(name:"commitMessage", defaultValue :"Correct Error: ", description :"Git commit message")
-		choice(name:"shouldPush", choices : ["No", "Yes"], description: "Push to updates to Git:https://github.com/neoandrey/juice/")	
+		choice(name:"shouldPush", choices : [ "Yes","No"],description: "Push to updates to Git:https://github.com/neoandrey/juice/")	
 	}
     
     stages {
@@ -71,13 +71,13 @@ environment {
             }
 
            steps{
-     
+       dir(PROJECT_PATH )  {
                     powershell (script:"""
                     docker-compose -f docker-compose.remote.yml up -d ---force-recreate
                                 """, returnStdout:true)
                  
            }
-
+           }
      }
 
     }
