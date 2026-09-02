@@ -1,0 +1,11 @@
+# Keep the build context small: only Flutter sources are needed for the build.
+.dart_tool/
+build/
+.idea/
+.git/
+.gitignore
+*.iml
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+devtools_options.yaml

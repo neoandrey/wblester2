@@ -1,0 +1,1 @@
+ lemonade launch opencode --model DeepSeek-Qwen3-8B-GGUF

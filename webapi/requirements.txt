@@ -1,0 +1,15 @@
+Flask==3.1.2
+flask-cors==6.0.2
+Flask-JWT-Extended==4.7.1
+mongoengine==0.29.1
+pymongo==4.15.5
+python-dotenv==1.2.1
+redis==6.4.0
+rq==2.8.0
+Werkzeug==3.1.6
+gunicorn==23.0.0
+Pillow>=11.0.0
+
+# Test dependencies
+pytest==8.4.2
+mongomock==4.3.0

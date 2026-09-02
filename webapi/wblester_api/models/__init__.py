@@ -1,0 +1,70 @@
+"""MongoEngine models package."""
+
+from .documents import (  # noqa: F401
+    AuditTrail,
+    BaseDocument,
+    Categories,
+    EventTriggers,
+    EventTypes,
+    Events,
+    Files,
+    FrontendLog,
+    GMailAccounts,
+    IMAPAccounts,
+    Images,
+    Jobs,
+    MailTemplates,
+    Messages,
+    Pages,
+    Permissions,
+    RolePermissions,
+    Roles,
+    Schedules,
+    SiteSettings,
+    Users,
+)
+
+# Table name (drift) -> document class. Used by the generic sync/data APIs.
+TABLE_REGISTRY = {
+    "AuditTrail": AuditTrail,
+    "Users": Users,
+    "Images": Images,
+    "Files": Files,
+    "GMailAccounts": GMailAccounts,
+    "Jobs": Jobs,
+    "MailTemplates": MailTemplates,
+    "Permissions": Permissions,
+    "Roles": Roles,
+    "Schedules": Schedules,
+    "SiteSettings": SiteSettings,
+    "EventTriggers": EventTriggers,
+    "EventTypes": EventTypes,
+    "Events": Events,
+    "IMAPAccounts": IMAPAccounts,
+    "Categories": Categories,
+    "Pages": Pages,
+    "Messages": Messages,
+}
+
+# Table name -> external id field. Explicit so probing can never confuse
+# similar fields (e.g. Pages carrying both category_id and page_id).
+TABLE_ID_FIELDS = {
+    "AuditTrail": "_id",
+    "Users": "user_id",
+    "Images": "image_id",
+    "Files": "file_id",
+    "GMailAccounts": "account_id",
+    "Jobs": "job_id",
+    "MailTemplates": "template_id",
+    "Permissions": "permission_id",
+    "Roles": "role_id",
+    "Schedules": "schedule_id",
+    "SiteSettings": "settings_id",
+    "EventTriggers": "trigger_id",
+    "EventTypes": "type_id",
+    "Events": "event_id",
+    "IMAPAccounts": "account_id",
+    "Categories": "category_id",
+    "Pages": "page_id",
+    "Messages": "message_id",
+}

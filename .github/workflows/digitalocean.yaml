@@ -1,0 +1,72 @@
+name: Digital Ocean Deployment Workflow
+on:
+  push:
+    branches: [ "prod" ]  
+jobs:
+  build:
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+    - name:  Get Branch Name
+      shell: bash
+      run:  |
+              echo "BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_ENV   
+    
+    - name: Check Out Latest Commit
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 
+
+    - name: Get Build Number
+      env:
+        MAJOR_VERSION: ${{ vars.MAJOR_VERSION}}
+        MINOR_VERSION: ${{ vars.MINOR_VERSION}}
+        PATCH: ${{ vars.PATCH}}
+      run: |
+           echo "branch: $BRANCH"
+           BUILD_NUMBER=$(/usr/bin/git rev-list --count HEAD $BRANCH) && echo "RELEASE_VERSION=$MAJOR_VERSION.$MINOR_VERSION.$PATCH.$BUILD_NUMBER" >> $GITHUB_ENV
+      shell: bash
+  
+
+    - name: Prepare Environment Variables
+      env:
+        APP_NAME: ${{ vars.APP_NAME}}
+        FLASK_ENV: ${{ vars.FLASK_ENV}}
+        GPG_KEY: ${{ secrets.GPG_KEY}}
+        FLASK_APP: ${{ vars.FLASK_APP}}
+        PORT: ${{ vars.PORT}}
+      run: |
+       
+        for filename in *.gpg;  
+        do  gpg --quiet --batch --yes --decrypt --passphrase="$GPG_KEY" -o "${filename/.gpg/}.env" -d "$filename";
+        done 
+        mv remote.env .env
+        mv docker-compose.remote.yml docker-compose.yml
+        echo "RELEASE_VERSION=${RELEASE_VERSION}" >> .env
+        sshpass -p ${{ secrets.APP_SERVER_PASSWORD}} scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ${{ secrets.APP_SERVER_USERNAME}}@${{ secrets.APP_SERVER_IP}}:* /opt/$APP_NAME/
+        
+    - name: Deploy app to Worker
+      uses: appleboy/ssh-action@master
+      env:
+        APP_NAME: "${{ vars. APP_NAME}}"
+        APP_PORT: "${{ vars. APP_PORT_1}}"
+        DOCKER_USERNAME: "${{ secrets.DOCKER_USERNAME}}"
+        DOCKER_PASSWORD: "${{ secrets.DOCKER_PASSWORD}}"
+      with:
+        host: ${{ secrets.APP_SERVER_IP}} 
+        username: ${{ secrets.APP_SERVER_USERNAME}}
+        password: ${{ secrets.APP_SERVER_PASSWORD}}
+        port: ${{ secrets.APP_SERVER_PORT}}
+        envs: APP_NAME,REPOSITORY,APP_PORT,DOCKER_USERNAME,DOCKER_PASSWORD,WORKER_COUNT,BRANCH,RELEASE_VERSION
+        script: |
+          docker login -u $DOCKER_USERNAME -p  $DOCKER_PASSWORD
+          echo  "docker image prune -f">/tmp/purge_docker_images.sh
+          echo  "docker images | awk '/${APP_NAME}/ {print \$1\":\"\$2}'| grep -v $RELEASE_VERSION| xargs -n 1 docker image rm -f">>/tmp/purge_docker_images.sh
+          echo  "docker images| grep '<none>'| cut -d' ' -f 25| xargs -n 1 docker image rm -f">>/tmp/purge_docker_images.sh
+          bash /tmp/purge_docker_images.sh
+          mkdir -p /opt/$APP_NAME /opt/$APP_NAME/logs /opt/$APP_NAME/uploads 
+          cd /opt/$APP_NAME
+          docker-compose  up -d --force-recreate
+          docker images --format table| awk 'NR>2 {print $1":"$2}'|xargs docker image rm -f &>/dev/null

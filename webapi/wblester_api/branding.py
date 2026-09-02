@@ -1,0 +1,38 @@
+"""Shared brand assets for server-rendered pages.
+
+The inline logo mirrors app/assets/logo.svg — a leaf sprouting inside a
+vine ring with a gold seed-sun — so every surface carries one identity.
+"""
+
+LOGO_SVG = """<svg class="logo" viewBox="0 0 64 64" role="img" aria-label="WBLester and O">
+  <defs>
+    <linearGradient id="ringGrad" x1="12" y1="52" x2="52" y2="10" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#D9A441"/>
+      <stop offset=".55" stop-color="#4CBE85"/>
+      <stop offset="1" stop-color="#8FDCA9"/>
+    </linearGradient>
+    <linearGradient id="leafGrad" x1="32" y1="46" x2="32" y2="16" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2FA36B"/>
+      <stop offset="1" stop-color="#A9EAC8"/>
+    </linearGradient>
+    <linearGradient id="sunGrad" x1="42" y1="10" x2="52" y2="20" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#EFC06A"/>
+      <stop offset="1" stop-color="#D9A441"/>
+    </linearGradient>
+  </defs>
+  <circle cx="31" cy="34" r="26" fill="none" stroke="url(#ringGrad)"
+          stroke-width="4.4" stroke-linecap="round"/>
+  <path d="M31 49 C 25 51, 18 49, 13 44"
+        fill="none" stroke="#E9F7EF" stroke-width="3" stroke-linecap="round"/>
+  <path d="M31 17 C 40.5 23.5, 41 38.5, 31 47 C 21 38.5, 21.5 23.5, 31 17 Z"
+        fill="url(#leafGrad)" stroke="#F7FAF8" stroke-width="1.6"
+        stroke-linejoin="round"/>
+  <path d="M31 21 L31 44" fill="none" stroke="#14563C"
+        stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M31 26 C 27.5 27.5, 25.5 29.5, 24.5 32 M31 26 C 34.5 27.5, 36.5 29.5, 37.5 32
+           M31 32 C 28 33.5, 26.5 35, 25.8 37 M31 32 C 34 33.5, 35.5 35, 36.2 37"
+        fill="none" stroke="#14563C" stroke-width="1.1"
+        stroke-linecap="round" opacity=".75"/>
+  <circle cx="50.5" cy="13.5" r="6.4" fill="#FFFFFF"/>
+  <circle cx="50.5" cy="13.5" r="4.6" fill="url(#sunGrad)"/>
+</svg>"""

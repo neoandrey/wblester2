@@ -1,0 +1,30 @@
+Goal: Build a responsive Flutter CMS application for agriculture, Real estate,natural resources energy production and sales in a single website. 
+      - The admin panel for making changes to the front-end should use elements from the application here: E:\workspace\F\flutter\Flutter_AdminLTE\lib
+	    - The admin panel should allow users to create, modify and delete pages. updates done to pages through the admin panel should reflect immediately on the front-end
+		- Pages should be group into categories and sub-categories that serve as menus and sub-menus in the front-end. 
+		- Page categories and sub-categories should be created, modified, deleted through the backend.
+		- it should be possible to show or hide pages and page categories
+		- It should provide a tool that can be used to edit pages, upload images, files, etc
+		- It should be responsive such that the layout changes to fit the screen of the device. Images, font, spaces should be responsive
+		- It should have mailbox that can be used to read messages sent from the front-end, respond to messages, delete messages, archive messages, etc
+	    - It should have configurations page that can be used to configure parameters required for the front-end, such as themes, mailbox, logos, phone number, address, location on google map
+		- It should have a page to configure users -create, edit, delete
+		- it should have a page to configure roles -admin, superuser and guest
+		- it should have a page to configure permission - readonly (guest), read and modify (superuser, admin), create and delete (admin)
+	  - The front-end website should be clean and professional. 
+	    - It should load components defined in the backend using its professional design
+	    - It should have menus,submenus and pages defined from the backend
+		- It should be responsive such that the layout changes to fit the screen of the device. Images, font, spaces should be responsive
+		- It should have a Contact us page that sends a mail to the mailing list defined in the backend
+		- changes made at the backend should be immediately propagated to the front-end
+		- components and images used for the front-end should have nice mixture of green, yellow, blue, white and orange colors to agriculture, energy and natural resources
+		  
+	  - API 
+	    - A python flask api should be used
+		- docker containers can be created for mongodb, redis, etc as required by the api
+		- some backend settings are in .\app\assets\parameters.json. Add, modify or remove parameters as required. The file can be moved to a more suitable location if required.
+	    - Changes done to the backend and mail created from the front-end should be sent to a python flask api
+		- The flask api should be connected to a mongodb database that contains all collections required by the front-end and backend
+		- The flask api should also handle authentication with jwt tokens and oauth
+	    - This project contains some templates defined in .\app\lib\data,.\app\lib\domain, and .\app\lib\database which can be used as a reference to create new objects and to setup drift database 
+		 synchronization.  The backend uses a local drift database that periodically synchronizes with the mongodb using the flask api

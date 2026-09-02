@@ -1,0 +1,88 @@
+﻿name: wblester
+
+x-api-env: &api-env
+  # PORT is the single knob for the whole stack's web port (default 5454):
+  # host mapping on the backend service, the gunicorn bind inside webapi and
+  # the nginx upstream all follow it, so the origin and internal wiring stay
+  # in sync no matter which port is chosen.
+  PORT: ${PORT:-5454}
+  SECRET_KEY: ${SECRET_KEY:-change-me}
+  JWT_SECRET_KEY: ${JWT_SECRET_KEY:-change-me-too}
+  MONGODB_HOST: mongo
+  MONGODB_PORT: 27017
+  MONGODB_DB: ${MONGODB_DB:-wblester}
+  MONGODB_USERNAME: ${MONGODB_USERNAME:-wblester_user}
+  MONGODB_PASSWORD: "${MONGODB_PASSWORD:-WBLester@123}"
+  REDIS_HOST: redis
+  SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+  SMTP_PORT: ${SMTP_PORT:-587}
+  SMTP_USERNAME: ${SMTP_USERNAME:-}
+  SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+  MAIL_DEFAULT_SENDER: ${MAIL_DEFAULT_SENDER:-no-reply@wblester.local}
+  WBLESTER_ADMIN_USERNAME: ${WBLESTER_ADMIN_USERNAME:-wblester}
+  WBLESTER_ADMIN_PASSWORD: ${WBLESTER_ADMIN_PASSWORD:-WBLester@123}
+  WBLESTER_ADMIN_EMAIL: ${WBLESTER_ADMIN_EMAIL:-admin@wblester.local}
+  WBLESTER_DEFAULT_ADMIN_USERNAME: ${WBLESTER_DEFAULT_ADMIN_USERNAME:-wblesteradmin}
+  WBLESTER_DEFAULT_ADMIN_PASSWORD: ${WBLESTER_DEFAULT_ADMIN_PASSWORD:-WbLester@123!}
+  WBLESTER_DEFAULT_ADMIN_EMAIL: ${WBLESTER_DEFAULT_ADMIN_EMAIL:-wblesteradmin@wblester.local}
+  WBLESTER_API_USERNAME: ${WBLESTER_API_USERNAME:-wblester_sync}
+  WBLESTER_API_PASSWORD: ${WBLESTER_API_PASSWORD:-WBLester@123}
+  RELEASE_VERSION: ${RELEASE_VERSION:-2.0.0}
+  UPLOAD_DIR: /srv/api/uploads
+  PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:${PORT:-5454}}
+  SPA_DIR: /srv/api/spa
+  LOG_DIR: /srv/api/logs
+
+services:
+  webapi:
+    image: webapi:${RELEASE_VERSION:-latest}
+    build: ./webapi
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      <<: *api-env
+    volumes:
+      - /opt/wblester/uploads:/srv/api/uploads
+      - /opt/wblester/logs:/srv/api/logs
+      - ./frontend:/srv/api/spa:ro
+    command: >
+      sh -c "python -m wblester_api.seed &&
+             gunicorn --bind 0.0.0.0:$${PORT:-5454} --workers 2 --timeout 60 --access-logfile - wblester_api.wsgi:application"
+
+  # Flutter admin SPA: compiled into this image and served at /admin/ by
+  # nginx, which proxies all API/public traffic to the webapi service so the
+  # app runs on a single origin (controlled by $PORT, default 5454). Building
+  # this image is the only step needed to ship a new admin portal - no
+  # host-side flutter build.
+  backend:
+    build: ./backend
+    image: wblester-backend:${RELEASE_VERSION:-latest}
+    restart: unless-stopped
+    depends_on:
+      webapi:
+        condition: service_started
+    environment:
+      # nginx substitutes this into the upstream (webapi:${PORT}) at boot.
+      WBLESTER_API_PORT: ${PORT:-5454}
+    ports:
+      - "${PORT:-5454}:80"
+
+  worker:
+    build: ./webapi
+    image: wblester-worker:${RELEASE_VERSION:-latest}
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      <<: *api-env
+    volumes:
+      - /opt/wblester/uploads:/srv/api/uploads
+      - /opt/wblester/logs:/srv/api/logs
+    command: ["python", "-m", "wblester_api.worker_launcher"]
