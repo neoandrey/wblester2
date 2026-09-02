@@ -38,11 +38,6 @@ services:
     image: webapi:${RELEASE_VERSION:-latest}
     build: ./webapi
     restart: unless-stopped
-    depends_on:
-      mongo:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
     environment:
       <<: *api-env
     volumes:
@@ -75,11 +70,6 @@ services:
     build: ./webapi
     image: wblester-worker:${RELEASE_VERSION:-latest}
     restart: unless-stopped
-    depends_on:
-      mongo:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
     environment:
       <<: *api-env
     volumes:
