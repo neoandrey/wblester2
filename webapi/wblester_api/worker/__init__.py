@@ -43,7 +43,7 @@ def get_redis():
                 password=current_app.config.get("REDIS_PASSWORD"),
                     socket_connect_timeout=(2),
                     socket_timeout=(2),
-                    single_connection_client=True,
+                    #single_connection_client=True,
                     retry=Retry(ExponentialBackoff(cap=10, base=1), 25),
                     retry_on_error=[
                         RedisConnectionError,
@@ -64,7 +64,7 @@ def get_redis():
                 port=int(current_app.config.get("REDIS_PORT", 6379)),
                 socket_connect_timeout=(2),
                 socket_timeout=(2),
-                single_connection_client=True,
+                #single_connection_client=True,
                 retry=Retry(ExponentialBackoff(cap=10, base=1), 25),
                 retry_on_error=[
                     RedisConnectionError,
