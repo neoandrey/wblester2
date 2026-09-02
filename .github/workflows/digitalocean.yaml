@@ -62,10 +62,10 @@ jobs:
         envs: APP_NAME,REPOSITORY,APP_PORT,DOCKER_USERNAME,DOCKER_PASSWORD,WORKER_COUNT,BRANCH,RELEASE_VERSION
         script: |
           docker login -u $DOCKER_USERNAME -p  $DOCKER_PASSWORD
-          echo  "docker image prune -f">/tmp/purge_docker_images.sh
-          echo  "docker images | awk '/${APP_NAME}/ {print \$1\":\"\$2}'| grep -v $RELEASE_VERSION| xargs -n 1 docker image rm -f">>/tmp/purge_docker_images.sh
-          echo  "docker images| grep '<none>'| cut -d' ' -f 25| xargs -n 1 docker image rm -f">>/tmp/purge_docker_images.sh
-          bash /tmp/purge_docker_images.sh
+          #echo  "docker image prune -f">/tmp/purge_docker_images.sh
+          #echo  "docker images | awk '/${APP_NAME}/ {print \$1\":\"\$2}'| grep -v $RELEASE_VERSION| xargs -n 1 docker image rm -f">>/tmp/purge_docker_images.sh
+          #echo  "docker images| grep '<none>'| cut -d' ' -f 25| xargs -n 1 docker image rm -f">>/tmp/purge_docker_images.sh
+          #bash /tmp/purge_docker_images.sh
           mkdir -p /opt/$APP_NAME /opt/$APP_NAME/logs /opt/$APP_NAME/uploads 
           cd /opt/$APP_NAME
           docker-compose  up -d --force-recreate
