@@ -35,7 +35,7 @@ def _correct_image_path(config):
                     if 'localhost' in imageUrl and 'uploads' in imageUrl:
                         uploadIndex=imageUrl.index('uploads')
                         #block[key]=f"{base_url}/{imageUrl[uploadIndex:]}"
-                        block[key]=f"{imageUrl[uploadIndex:]}"
+                        block[key]=f"/{imageUrl[uploadIndex:]}"
                         modified = True
             if 'items' in block and isinstance(block['items'], list):
                 for item in block['items']:
@@ -48,7 +48,7 @@ def _correct_image_path(config):
                                 uploadIndex=imageUrl.index('uploads')
                                 
                                 #item[k]=f"{base_url}/{imageUrl[uploadIndex:]}"
-                                item[k]=f"{imageUrl[uploadIndex:]}"
+                                item[k]=f"/{imageUrl[uploadIndex:]}"
                                 modified = True
         if modified:
             page.content_json = content_json
