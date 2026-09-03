@@ -12,7 +12,47 @@ from .extensions import cors, jwt
 from .logging_setup import configure_logging
 from .login_page import LOGIN_PAGE
 from .logs_page import LOGS_PAGE
+from .models import Pages
 
+
+def _correct_image_path(config):
+    """Correct image paths in content_json to be relative to PUBLIC_BASE_URL."""
+    base_url = config.get("PUBLIC_BASE_URL", "http://localhost:5454")
+    for page in Pages.objects(visible=True):
+        content_json = page.content_json
+        if not content_json or not isinstance(content_json, dict):
+            continue
+        blocks = content_json.get("blocks", [])
+        if not isinstance(blocks, list):
+            continue
+        modified = False
+        for block in blocks:
+            if not isinstance(block, dict):
+                continue
+            for key, val in block.items():
+                if 'image' in key.lower() or 'url' in key.lower():
+                    imageUrl = val
+                    if 'localhost' in imageUrl and 'uploads' in imageUrl:
+                        uploadIndex=imageUrl.index('uploads')
+                        #block[key]=f"{base_url}/{imageUrl[uploadIndex:]}"
+                        block[key]=f"{imageUrl[uploadIndex:]}"
+                        modified = True
+            if 'items' in block and isinstance(block['items'], list):
+                for item in block['items']:
+                    if not isinstance(item, dict):
+                        continue
+                    for k, v in item.items():
+                        if 'image' in k.lower() or 'url' in k.lower():
+                            imageUrl = v
+                            if 'localhost' in imageUrl and 'uploads' in imageUrl:
+                                uploadIndex=imageUrl.index('uploads')
+                                
+                                #item[k]=f"{base_url}/{imageUrl[uploadIndex:]}"
+                                item[k]=f"{imageUrl[uploadIndex:]}"
+                                modified = True
+        if modified:
+            page.content_json = content_json
+            page.save()
 
 def _wants_html() -> bool:
     """True when the caller looks like a browser navigation."""
@@ -38,7 +78,8 @@ def create_app(config_object: type[Config] | None = None) -> Flask:
         resources={r"/*": {"origins": "*", "supports_credentials": False}},
     )
     jwt.init_app(app)
-
+    _correct_image_path(app.config)
+    
     from .blueprints import ALL_BLUEPRINTS
 
     for blueprint in ALL_BLUEPRINTS:
