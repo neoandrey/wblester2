@@ -49,8 +49,10 @@ services:
       - /opt/wblester/logs:/srv/api/logs
       - ./frontend:/srv/api/spa:ro
     command: >
-      sh -c "python -m wblester_api.seed &&
-             gunicorn --bind 0.0.0.0:$${PORT:-5454} --workers 2 --timeout 60 --access-logfile - wblester_api.wsgi:application"
+       sh -c "gunicorn --bind 0.0.0.0:$${PORT:-5454} --workers 2 --timeout 60 --access-logfile - wblester_api.wsgi:application"
+
+      # sh -c "python -m wblester_api.seed &&
+      #        gunicorn --bind 0.0.0.0:$${PORT:-5454} --workers 2 --timeout 60 --access-logfile - wblester_api.wsgi:application"
 
   # Flutter admin SPA: compiled into this image and served at /admin/ by
   # nginx, which proxies all API/public traffic to the webapi service so the
