@@ -26,11 +26,41 @@ import { postContactForm } from '../api.js';
 
 /* ------------------------------------------------------------------ chrome */
 
+const DEVICE_NOTICE_KEY = 'wb_device_notice_dismissed';
+
+/* Informative, dismissible notice for touch/mobile visitors. Mobile browsers
+   may show their own "access other apps and services on this device" prompt;
+   this flags it so users know it is safe and our site uses no device services.
+   Shown once per browser and only on touch devices. */
+function deviceNotice() {
+  let dismissed = false;
+  try {
+    dismissed = localStorage.getItem(DEVICE_NOTICE_KEY) === '1';
+  } catch { /* storage may be unavailable; show anyway */ }
+  const isTouch = matchMedia('(pointer: coarse)').matches;
+  if (dismissed || !isTouch) return el('div');
+
+  const close = () => {
+    notice.remove();
+    try { localStorage.setItem(DEVICE_NOTICE_KEY, '1'); } catch { /* ignore */ }
+  };
+  const notice = el('div', { class: 'device-notice', role: 'status' },
+    el('div', { class: 'container device-notice-in' },
+      el('p', {},
+        'If your browser asks to access other apps or services on this device, ' +
+        'that is a standard mobile browser notice. WBLester & O does not use your ' +
+        'camera, microphone, or location.' ),
+      el('button', { class: 'device-notice-close', type: 'button', 'aria-label': 'Dismiss', onclick: close }, '\u00d7'),
+    ),
+  );
+  return notice;
+}
+
 export function renderTopbar() {
   const s = getSettings();
   const host = document.getElementById('topbar');
   host.innerHTML = '';
-  host.append(
+  host.append(deviceNotice(),
     el(
       'div',
       { class: 'container topbar-in' },
